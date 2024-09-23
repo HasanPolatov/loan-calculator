@@ -30,11 +30,16 @@ function updateValues() {
 
         monthlyPayment.textContent = formatNumberWithSpaces(Math.round((firstPayment + lastPayment) / 2)) + ' so\'m';
     }
+
+    updateUrlQueriesAndFetchData();
 }
 
 loanAmountSlider.addEventListener('input', updateValues);
+loanAmountValue.addEventListener('input', updateValues);
 loanTermSlider.addEventListener('input', updateValues);
+loanTermValue.addEventListener('input', updateValues);
 interestRateSlider.addEventListener('input', updateValues);
+interestRateValue.addEventListener('input', updateValues);
 paymentTypeInputs.forEach(input => input.addEventListener('change', updateValues));
 
 loanAmountValue.addEventListener("focus", function () {
@@ -45,11 +50,11 @@ loanAmountValue.addEventListener("focus", function () {
 });
 
 loanAmountValue.addEventListener("blur", function () {
-    this.type="text";
+    this.type = "text";
     let numberValue = parseInt(this.value.replace(/\s/g, ''), 10);
     const min = parseInt(this.min, 10);
     const max = parseInt(this.max, 10);
-    
+
     if (isNaN(numberValue) || numberValue < min) {
         this.value = formatNumberWithSpaces(min) + " so'm";
     } else if (numberValue > max) {
@@ -72,7 +77,7 @@ loanTermValue.addEventListener("focus", function () {
 
 loanTermValue.addEventListener("blur", function () {
 
-    this.type="text";
+    this.type = "text";
     let numberValue = parseInt(this.value.replace(/\s/g, ''), 10);
     const min = parseInt(this.min, 10);
     const max = parseInt(this.max, 10);
@@ -98,7 +103,7 @@ interestRateValue.addEventListener("focus", function () {
 });
 
 interestRateValue.addEventListener("blur", function () {
-    this.type="text";
+    this.type = "text";
     let numberValue = parseInt(this.value.replace(/\s/g, ''), 10);
     const min = parseInt(this.min, 10);
     const max = parseInt(this.max, 10);
@@ -117,93 +122,92 @@ interestRateValue.addEventListener("blur", function () {
 });
 
 function formatNumberWithSpaces(number) {
-    return new Intl.NumberFormat('en-US', { 
-        useGrouping: true 
+    return new Intl.NumberFormat('en-US', {
+        useGrouping: true
     }).format(number).replace(/,/g, ' ');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('myModal');
-    const openModalBtn = document.getElementById('repaymentScheduleBtn');
-    const closeBtn = document.querySelector('.close');
-    const modalData = document.getElementById('modalData');
-    const modalContent = modal.querySelector('.modal-content');
-    const tbody = document.querySelector('#repaymentSchedule tbody');
-
-    let urlQueries = "?";
+function updateUrlQueriesAndFetchData() {
     let loanAmount = loanAmountSlider.value;
     let loanTerm = loanTermSlider.value;
     let interestRate = interestRateSlider.value;
     let paymentTypeInt = document.querySelector('input[name="paymentType"]:checked').value;
     let paymentType = (paymentTypeInt === 'annuity' ? 'ANNUITY' : 'DIFFERENTIAL');
 
-    urlQueries += "loanAmount=" + loanAmount + "&term=" + loanTerm + "&interestRate=" + interestRate + "&repaymentType=" + paymentType;
-  
-    openModalBtn.addEventListener('click', () => {
-      modal.style.display = 'block';
-      setTimeout(() => {
-        modal.classList.add('show');
-        modalContent.classList.add('show-content');
-      }, 10);
-      fetchData();
-    });
-  
-    closeBtn.addEventListener('click', () => {
-      closeModal();
-    });
-  
-    window.addEventListener('click', (event) => {
-      if (event.target == modal) {
-        closeModal();
-      }
-    });
-  
-    function closeModal() {
-      modalContent.classList.remove('show-content');
-      modal.classList.remove('show');
-      setTimeout(() => {
-        modal.style.display = 'none';
-      }, 500);
-    }
-  
-    function fetchData() {
-      fetch('http://localhost:8777/api/v1/credit/repayment-schedule' + urlQueries)
+    let urlQueries = `?loanAmount=${loanAmount}&term=${loanTerm}&interestRate=${interestRate}&repaymentType=${paymentType}`;
+
+    fetchData(urlQueries);
+}
+
+function fetchData(urlQueries) {
+    fetch('http://localhost:8777/api/v1/credit/repayment-schedule' + urlQueries)
         .then(response => response.json())
         .then(data => {
-            modalData.textContent = '';
-            tbody.innerHTML = '';
-            data.forEach((item, index) => {
-                const tr = document.createElement('tr');
+            updateRepaymentSchedule(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
 
-                if (item.date === null) {
-                    tr.innerHTML = `
+function updateRepaymentSchedule(data) {
+    const tbody = document.querySelector('#repaymentSchedule tbody');
+    tbody.innerHTML = '';
+    data.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        if (item.date === null) {
+            tr.innerHTML = `
                 <td></td>
                 <td></td>
                 <td>Jami</td>
                 <td>${formatNumberWithSpaces(item.loanRepaymentAmount)}</td>
                 <td>${formatNumberWithSpaces(item.loanInterestsAmount)}</td>
                 <td>${formatNumberWithSpaces(item.totalForRepayment)}</td>
-                `;
-                } else {
-
-                tr.innerHTML = `
+            `;
+        } else {
+            tr.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${item.date}</td>
                 <td>${formatNumberWithSpaces(item.loanBalance)}</td>
                 <td>${formatNumberWithSpaces(item.loanRepaymentAmount)}</td>
                 <td>${formatNumberWithSpaces(item.loanInterestsAmount)}</td>
                 <td>${formatNumberWithSpaces(item.totalForRepayment)}</td>
-                `;
-                }
-                tbody.appendChild(tr);
-            });
+            `;
+        }
+        tbody.appendChild(tr);
+    });
+}
 
-        })
-        .catch(error => {
-          modalData.textContent = 'Error fetching data.';
-          console.error('Error:', error);
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('myModal');
+    const openModalBtn = document.getElementById('repaymentScheduleBtn');
+    const closeBtn = document.querySelector('.close');
+    const modalContent = modal.querySelector('.modal-content');
+    openModalBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+        setTimeout(() => {
+            modal.classList.add('show');
+            modalContent.classList.add('show-content');
+        }, 10);
+    });
+
+    closeBtn.addEventListener('click', () => {
+        closeModal();
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            closeModal();
+        }
+    });
+
+    function closeModal() {
+        modalContent.classList.remove('show-content');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 500);
     }
-  });  
+});
 
 updateValues();
