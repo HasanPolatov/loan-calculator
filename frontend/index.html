@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Calculator Card</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <div class="card">
+        <div class="grid">
+            <div>
+                <div class="slider-container">
+                    <div class="value-range">
+                        <label class="slider-label">Kredit miqdori</label>
+                        <input class="slider-value" id="loanAmountValue" type="text" min="5000000" max="800000000"
+                               value="50 000 000 so'm" readonly>
+                    </div>
+                    <input type="range" id="loanAmount" class="slider" min="5000000" max="800000000" step="1000000"
+                           value="50000000">
+                    <div class="slider-range" month>
+                        <span>5 million so'mdan</span>
+                        <span>800 million so'mgacha</span>
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <div class="value-range">
+                        <label class="slider-label">Kredit muddati</label>
+                        <input class="slider-value" id="loanTermValue" type="text" min="3" max="180" value="24 oy"
+                               readonly>
+                    </div>
+                    <input type="range" id="loanTerm" class="slider" min="3" max="180" value="24">
+                    <div class="slider-range">
+                        <span>3 oydan boshlab</span>
+                        <span>180 oygacha</span>
+                    </div>
+                    <div class="slider-value" id="loanTermValue"></div>
+                </div>
+                <div class="slider-container">
+                    <div class="value-range">
+                        <label class="slider-label">Foiz stavkasi</label>
+                        <input class="slider-value" id="interestRateValue" type="text" min="10" max="30" value="26 %"
+                               readonly>
+                    </div>
+                    <input type="range" id="interestRate" class="slider" min="10" max="30" step="1" value="26">
+                    <div class="slider-range">
+                        <span>10 % dan</span>
+                        <span>50 % gacha</span>
+                    </div>
+                </div>
+                <div class="payment-type-switcher">
+                    <label class="switcher-label">To'lov turi</label>
+                    <div class="switcher">
+                        <input type="radio" id="annuityPayment" name="paymentType" value="annuity" checked>
+                        <label for="annuityPayment">Annuitet</label>
+                        <input type="radio" id="differentialPayment" name="paymentType" value="differential">
+                        <label for="differentialPayment">Differensial</label>
+                    </div>
+                </div>
+            </div>
+            <div class="results">
+                <div class="result">
+                    <div class="result-label">Foiz stavkasi</div>
+                    <div class="result-value" id="interestRateResult"></div>
+                </div>
+                <div class="result">
+                    <div class="result-label">Oʻrtacha oylik toʻlov</div>
+                    <div class="result-value" id="monthlyPayment"></div>
+                </div>
+                <button class="btn btn-secondary" id="repaymentScheduleBtn">To'lov jadvali</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modalData">Loading...</p>
+            <div class="tableContainer">
+                <table id="repaymentSchedule">
+                    <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Sana</th>
+                        <th>Kredit qoldig'i</th>
+                        <th>Kredit to'lash summasi</th>
+                        <th>Kredit bo'yicha foizlar summasi</th>
+                        <th>Jami to'lanadigan summa</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+<script src="script.js"></script>
+
+</body>
+</html>
